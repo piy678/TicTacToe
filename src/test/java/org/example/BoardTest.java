@@ -18,7 +18,13 @@ public class BoardTest {
         Assertions.assertFalse(board.isCellEmpty(0, 0));
     }
 
-
+    @Test
+    public void testBoardIsCellEmptyNegative() {
+        Board board = new Board();
+        Assertions.assertTrue(board.isCellEmpty(1, 1));
+        board.place(1, 1, 'O');
+        Assertions.assertFalse(board.isCellEmpty(1, 1));
+    }
 
     @Test
     public void testBoardPlace() {
@@ -28,7 +34,13 @@ public class BoardTest {
         assertEquals('X', board.cells[0][0]);
     }
 
-
+    @Test
+    public void testBoardPlaceNegative() {
+        Board board = new Board();
+        board.place(0, 0, 'X');
+        board.place(0, 0, 'O');
+        assertEquals('X', board.cells[0][0]);
+    }
 
     @Test
     public void testBoardIsFull() {
@@ -42,7 +54,12 @@ public class BoardTest {
         Assertions.assertTrue(board.isFull());
     }
 
-
+    @Test
+    public void testBoardIsFullNegative() {
+        Board board = new Board();
+        board.place(0, 0, 'X');
+        Assertions.assertFalse(board.isFull());
+    }
 
     @Test
     public void testBoardClear() {
@@ -52,7 +69,13 @@ public class BoardTest {
         Assertions.assertTrue(board.isCellEmpty(0, 0));
     }
 
-
+    @Test
+    public void testBoardClearNegative() {
+        Board board = new Board();
+        board.place(0, 0, 'X');
+        board.clear();
+        assertEquals(' ', board.cells[0][0]);
+    }
     @Test
     public void testBoardPrint() {
         Board board = new Board();
@@ -70,5 +93,28 @@ public class BoardTest {
         String actualOutput = outputStream.toString().replaceAll("\\s", "");
         Assertions.assertEquals(expectedOutput.replaceAll("\\s", ""), actualOutput);
     }
-   
+    @Test
+    public void testBoardPrintNegative() {
+        Board board = new Board();
+        board.place(0, 0, 'X');
+        board.place(1, 1, 'O');
+
+
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        System.setOut(new PrintStream(outContent));
+
+        board.print();
+
+
+        System.setOut(originalOut);
+
+        String incorrectOutput =
+                "O| | \n" +
+                        "-----\n" +
+                        " |X| \n" +
+                        "-----\n" +
+                        " | | \n";
+        Assertions.assertNotEquals(incorrectOutput, outContent.toString());
+    }
 }
