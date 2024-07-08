@@ -1,93 +1,96 @@
-package test.main.java.org.example;
+package org.example;
 
-import org.example.Player;
-import org.example.Board;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.InputMismatchException;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.NoSuchElementException;
-import java.util.Scanner;
 
-public class TicTacToe {
-    Player player1;
-    Player player2;
-    Player currentPlayer;
-    Board board;
+import static org.junit.jupiter.api.Assertions.*;
 
-    public TicTacToe() {
-        player1 = new Player('X');
-        player2 = new Player('O');
-        currentPlayer = player1;
-        board = new Board();
-    }
-    public void start() {
-        board.clear();
-        currentPlayer = player1;
-        boolean gameWon = false;
-        Scanner scanner = new Scanner(System.in);
+public class TicTacToeTest {
 
-        while (!board.isFull() && !gameWon) {
-            board.print();
-            System.out.println("Player " + currentPlayer.getMarker() + ", enter your move (row and column): ");
+    private TicTacToe game;
 
-            try {
-
-                if (scanner.hasNextLine()) {
-                    int row = scanner.nextInt();
-                    int col = scanner.nextInt();
-
-                    if (row < 0 || row >= 3 || col < 0 || col >= 3 || !board.isCellEmpty(row, col)) {
-                        System.out.println("This move is not valid");
-                    } else {
-                        board.place(row, col, currentPlayer.getMarker());
-                        if (hasWinner()) {
-                            board.print();
-                            System.out.println("Player " + currentPlayer.getMarker() + " wins!");
-                            gameWon = true;
-                        } else {
-                            switchCurrentPlayer();
-                        }
-                    }
-                } else {
-
-                    System.out.println("No input received. Please provide valid input.");
-                    scanner.nextLine();
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter two integers for row and column.");
-                scanner.nextLine();
-            } catch (NoSuchElementException e) {
-                System.out.println("Input error. Please provide valid input.");
-                scanner.nextLine();
-            }
-        }
-
-        if (!gameWon) {
-            board.print();
-            System.out.println("The game is a draw!");
-        }
-
-        scanner.close();
+    @BeforeEach
+    public void setUp() {
+        game = new TicTacToe();
     }
 
-    public void switchCurrentPlayer() {
-        currentPlayer = (currentPlayer == player1) ? player2 : player1;
+    @Test
+    public void testConstructorInitialization() {
+        assertNotNull(game.player1);
+        assertNotNull(game.player2);
+        assertNotNull(game.currentPlayer);
+        assertNotNull(game.board);
+
+        assertEquals('X', game.player1.getMarker());
+        assertEquals('O', game.player2.getMarker());
+        assertEquals(game.player1, game.currentPlayer);
+        assertFalse(game.board.isFull());
     }
 
-    public boolean hasWinner() {
-        char[][] cells = board.cells;
+    @Test
+    public void testGamePlayWithValidMoves() {
+        String input = "0 0\n0 1\n1 1\n0 2\n2 2\n";
+        simulateUserInput(input);
+        assertDoesNotThrow(() -> game.start());
+
+        assertTrue(game.hasWinner());
+        assertEquals(game.player1, game.currentPlayer);
+    }
+
+    @Test
+    public void testGamePlayWithInvalidMoves() {
+        String input = "-1 1\n3 3\n0 0\n0 0\n";
+        simulateUserInput(input);
+
+        Assertions.assertThrows(NoSuchElementException.class, () -> game.start());
 
 
-        for (int i = 0; i < 3; i++) {
-            if ((cells[i][0] == cells[i][1] && cells[i][1] == cells[i][2] && cells[i][0] != ' ') ||
-                    (cells[0][i] == cells[1][i] && cells[1][i] == cells[2][i] && cells[0][i] != ' ')) {
-                return true;
-            }
-        }
-        if ((cells[0][0] == cells[1][1] && cells[1][1] == cells[2][2] && cells[0][0] != ' ') ||
-                (cells[0][2] == cells[1][1] && cells[1][1] == cells[2][0] && cells[0][2] != ' ')) {
-            return true;
-        }
+        assertEquals(game.board.isFull(), false, "Das Spielbrett sollte nicht voll sein");
+        assertFalse(game.hasWinner(), "Es sollte keinen Gewinner geben");
+    }
 
-        return false;
+    @Test
+    public void testConstructorWithInvalidParameters() {
+        assertDoesNotThrow(() -> new TicTacToe());
+    }
+
+    @Test
+    public void testSwitchCurrentPlayer() {
+        assertEquals('X', game.currentPlayer.getMarker());
+        game.switchCurrentPlayer();
+        assertEquals('O', game.currentPlayer.getMarker());
+    }
+
+    @Test
+    public void testSwitchCurrentPlayerTwice() {
+        game.switchCurrentPlayer();
+        game.switchCurrentPlayer();
+        assertEquals('X', game.currentPlayer.getMarker());
+    }
+
+    @Test
+    public void testHasWinner() {
+        game.board.place(0, 0, 'X');
+        game.board.place(0, 1, 'X');
+        game.board.place(0, 2, 'X');
+        assertTrue(game.hasWinner());
+    }
+
+    @Test
+    public void testNoWinner() {
+        game.board.place(0, 0, 'X');
+        game.board.place(0, 1, 'X');
+        game.board.place(0, 2, 'O');
+        assertFalse(game.hasWinner());
+    }
+
+    private void simulateUserInput(String input) {
+        InputStream in = new ByteArrayInputStream(input.getBytes());
+        System.setIn(in);
     }
 }
