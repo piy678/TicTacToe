@@ -1,6 +1,6 @@
 package org.example;
 public class Board {
-    char[][] cells;
+    public char[][] cells;
 
     public Board() {
         cells = new char[3][3];

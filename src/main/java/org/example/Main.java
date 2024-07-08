@@ -1,6 +1,6 @@
 package org.example;
 
-import main.java.org.example.TicTacToe;
+import org.example.TicTacToe;
 
 import java.util.Scanner;
 
