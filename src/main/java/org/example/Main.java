@@ -1,7 +1,12 @@
 package org.example;
 
+import main.java.org.example.TicTacToe;
+
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        TicTacToe game = new TicTacToe();
+        game.start();
     }
 }
